@@ -74,6 +74,12 @@
     @apply bg-background text-foreground;
   }
 }
+.auth {
+  @apply flex-center min-h-screen w-full bg-purple-100;
+}
+.cl-internal-75cqc {
+  display: none;
+}
 
 .auth {
   @apply flex-center min-h-screen w-full bg-purple-100;
