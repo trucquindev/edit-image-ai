@@ -1,23 +1,22 @@
-import { Webhook } from 'svix';
-import { headers } from 'next/headers';
-import { WebhookEvent } from '@clerk/nextjs/server';
-import { NextResponse } from 'next/server';
-import { createUser, deleteUser, updateUser } from '@/lib/actions/user.action';
 import { clerkClient } from '@clerk/nextjs';
+import { WebhookEvent } from '@clerk/nextjs/server';
+import { headers } from 'next/headers';
+import { NextRequest, NextResponse } from 'next/server';
+import { Webhook } from 'svix';
 
-export async function POST(req: Request) {
+import { createUser, deleteUser, updateUser } from '@/lib/actions/user.action';
+
+export async function POST(req: NextRequest) {
+  // You can find this in the Clerk Dashboard -> Webhooks -> choose the webhook
   const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
 
   if (!WEBHOOK_SECRET) {
     throw new Error(
-      'Error: Please add WEBHOOK_SECRET from Clerk Dashboard to .env or .env.local'
+      'Please add WEBHOOK_SECRET from Clerk Dashboard to .env or .env.local'
     );
   }
 
-  // Create new Svix instance with secret
-  const wh = new Webhook(WEBHOOK_SECRET);
-
-  // Get headers
+  // Get the headers
   const headerPayload = await headers();
   const svix_id = headerPayload.get('svix-id');
   const svix_timestamp = headerPayload.get('svix-timestamp');
@@ -25,18 +24,21 @@ export async function POST(req: Request) {
 
   // If there are no headers, error out
   if (!svix_id || !svix_timestamp || !svix_signature) {
-    return new Response('Error: Missing Svix headers', {
+    return new Response('Error occured -- no svix headers', {
       status: 400,
     });
   }
 
-  // Get body
+  // Get the body
   const payload = await req.json();
   const body = JSON.stringify(payload);
 
+  // Create a new Svix instance with your secret.
+  const wh = new Webhook(WEBHOOK_SECRET);
+
   let evt: WebhookEvent;
 
-  // Verify payload with headers
+  // Verify the payload with the headers
   try {
     evt = wh.verify(body, {
       'svix-id': svix_id,
@@ -44,16 +46,16 @@ export async function POST(req: Request) {
       'svix-signature': svix_signature,
     }) as WebhookEvent;
   } catch (err) {
-    console.error('Error: Could not verify webhook:', err);
-    return new Response('Error: Verification error', {
+    console.error('Error verifying webhook:', err);
+    return new Response('Error occured', {
       status: 400,
     });
   }
 
-  // Do something with payload
-  // For this guide, log payload to console
+  // Get the ID and type
   const { id } = evt.data;
   const eventType = evt.type;
+
   // CREATE
   if (eventType === 'user.created') {
     const { id, email_addresses, image_url, first_name, last_name, username } =
@@ -110,5 +112,5 @@ export async function POST(req: Request) {
   console.log(`Webhook with and ID of ${id} and type of ${eventType}`);
   console.log('Webhook body:', body);
 
-  return new Response('Webhook received', { status: 200 });
+  return new Response('', { status: 200 });
 }
