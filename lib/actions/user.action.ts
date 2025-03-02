@@ -90,4 +90,3 @@ export async function updateCredits(userId: string, creditFee: number) {
     handleError(error);
   }
 }
-export const dynamic = 'force-dynamic';
