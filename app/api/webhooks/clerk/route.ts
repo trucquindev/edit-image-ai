@@ -114,3 +114,7 @@ export async function POST(req: Request) {
 
   return new Response('', { status: 200 });
 }
+
+export function GET() {
+  return new Response('This is the Clerk Webhook endpoint.', { status: 200 });
+}
