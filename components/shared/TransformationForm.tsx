@@ -86,30 +86,29 @@ const TransformationForm = ({
     type: string,
     onChangeField: (value: string) => void
   ) => {
-    debounce(()=>{
+    debounce(() => {
       setNewTransformation((prev: any) => ({
         ...prev,
-        [type]:{
-          ...prev?.[type]
+        [type]: {
+          ...prev?.[type],
         },
-        [fieldName==='prompt'?'prompt':'to']:value,
-
+        [fieldName === 'prompt' ? 'prompt' : 'to']: value,
       }));
-      return onChangeField(value)
-    },1000)
+      return onChangeField(value);
+    }, 1000);
   };
   // TODO: return to updateCredits
-  const onTransformHandler = async() => {
-    setIsTransforming(true)
+  const onTransformHandler = async () => {
+    setIsTransforming(true);
 
     setTransformationConfig(
-      deepMergeObjects(newTransformation,transformationConfig)
-    )
-    setNewTransformation(null)
-    
-    startTransition(async()=>{
+      deepMergeObjects(newTransformation, transformationConfig)
+    );
+    setNewTransformation(null);
+
+    startTransition(async () => {
       // await updateCredits(userId,creditFee)
-    })
+    });
   };
   return (
     <Form {...form}>
