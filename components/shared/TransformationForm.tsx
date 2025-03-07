@@ -25,6 +25,7 @@ import { AspectRatioKey, debounce, deepMergeObjects } from '@/lib/utils';
 import { Button } from '../ui/button';
 import { updateCredits } from '@/lib/actions/user.action';
 import MediaUploader from './MediaUploader';
+import TransformedImage from './TransformedImage';
 export const formSchema = z.object({
   title: z.string(),
   aspectRatio: z.string().optional(),
@@ -108,7 +109,7 @@ const TransformationForm = ({
     setNewTransformation(null);
 
     startTransition(async () => {
-      // await updateCredits(userId,creditFee)
+      await updateCredits(userId, -1);
     });
   };
   return (
@@ -213,6 +214,14 @@ const TransformationForm = ({
             )}
           />
         </div>
+        <TransformedImage
+          image={image}
+          type={type}
+          title={form.getValues().title}
+          isTransforming={isTransforming}
+          setIsTransforming={setIsTransforming}
+          transformationConfig={transformationConfig}
+        />
         <div className="flex flex-col gap-4">
           <Button
             type="button"
