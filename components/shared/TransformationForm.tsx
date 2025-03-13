@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
-import { z } from 'zod';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { Form } from '@/components/ui/form';
+import { z } from 'zod';
+
 import {
   Select,
   SelectContent,
@@ -13,6 +13,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
+import { Button } from '@/components/ui/button';
+import { Form } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import {
   aspectRatioOptions,
@@ -23,15 +25,14 @@ import {
 import { CustomField } from './CustomField';
 import { useEffect, useState, useTransition } from 'react';
 import { AspectRatioKey, debounce, deepMergeObjects } from '@/lib/utils';
-import { Button } from '../ui/button';
-import { updateCredits } from '@/lib/actions/user.action';
 import MediaUploader from './MediaUploader';
 import TransformedImage from './TransformedImage';
+import { updateCredits } from '@/lib/actions/user.action';
 import { getCldImageUrl } from 'next-cloudinary';
-import { useRouter } from 'next/navigation';
 import { addImage, updateImage } from '@/lib/actions/image.actions';
-import { CreditCard } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { InsufficientCreditsModal } from './InsufficientCreditsModal';
+
 export const formSchema = z.object({
   title: z.string(),
   aspectRatio: z.string().optional(),
@@ -39,15 +40,15 @@ export const formSchema = z.object({
   prompt: z.string().optional(),
   publicId: z.string(),
 });
+
 const TransformationForm = ({
   action,
   data = null,
-  type,
   userId,
+  type,
   creditBalance,
   config = null,
 }: TransformationFormProps) => {
-  const router = useRouter();
   const transformationType = transformationTypes[type];
   const [image, setImage] = useState(data);
   const [newTransformation, setNewTransformation] =
@@ -56,6 +57,8 @@ const TransformationForm = ({
   const [isTransforming, setIsTransforming] = useState(false);
   const [transformationConfig, setTransformationConfig] = useState(config);
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+
   const initialValues =
     data && action === 'Update'
       ? {
@@ -66,13 +69,17 @@ const TransformationForm = ({
           publicId: data?.publicId,
         }
       : defaultValues;
+
+  // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: initialValues,
   });
 
+  // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
+
     if (data || image) {
       const transformationUrl = getCldImageUrl({
         width: image?.width,
@@ -132,6 +139,7 @@ const TransformationForm = ({
         }
       }
     }
+
     setIsSubmitting(false);
   }
 
@@ -140,15 +148,19 @@ const TransformationForm = ({
     onChangeField: (value: string) => void
   ) => {
     const imageSize = aspectRatioOptions[value as AspectRatioKey];
+
     setImage((prevState: any) => ({
       ...prevState,
       aspectRatio: imageSize.aspectRatio,
       width: imageSize.width,
       height: imageSize.height,
     }));
+
     setNewTransformation(transformationType.config);
+
     return onChangeField(value);
   };
+
   const onInputChangeHandler = (
     fieldName: string,
     value: string,
@@ -156,29 +168,32 @@ const TransformationForm = ({
     onChangeField: (value: string) => void
   ) => {
     debounce(() => {
-      setNewTransformation((prev: any) => ({
-        ...prev,
+      setNewTransformation((prevState: any) => ({
+        ...prevState,
         [type]: {
-          ...prev?.[type],
+          ...prevState?.[type],
+          [fieldName === 'prompt' ? 'prompt' : 'to']: value,
         },
-        [fieldName === 'prompt' ? 'prompt' : 'to']: value,
       }));
-      return onChangeField(value);
-    }, 1000);
+    }, 1000)();
+
+    return onChangeField(value);
   };
-  // TODO: return to updateCredits
+
   const onTransformHandler = async () => {
     setIsTransforming(true);
 
     setTransformationConfig(
       deepMergeObjects(newTransformation, transformationConfig)
     );
+
     setNewTransformation(null);
 
     startTransition(async () => {
       await updateCredits(userId, creditFee);
     });
   };
+
   useEffect(() => {
     if (image && (type === 'restore' || type === 'removeBackground')) {
       setNewTransformation(transformationType.config);
@@ -192,46 +207,47 @@ const TransformationForm = ({
         <CustomField
           control={form.control}
           name="title"
-          formLabel="Image title"
+          formLabel="Image Title"
           className="w-full"
           render={({ field }) => <Input {...field} className="input-field" />}
         />
+
         {type === 'fill' && (
           <CustomField
             control={form.control}
-            className="w-full"
             name="aspectRatio"
             formLabel="Aspect Ratio"
+            className="w-full"
             render={({ field }) => (
               <Select
                 onValueChange={(value) =>
                   onSelectFieldHandler(value, field.onChange)
                 }
+                value={field.value}
               >
                 <SelectTrigger className="select-field">
                   <SelectValue placeholder="Select size" />
                 </SelectTrigger>
                 <SelectContent>
-                  {Object.keys(aspectRatioOptions).map((key) => {
-                    return (
-                      <SelectItem key={key} value={key}>
-                        {aspectRatioOptions[key as AspectRatioKey].label}
-                      </SelectItem>
-                    );
-                  })}
+                  {Object.keys(aspectRatioOptions).map((key) => (
+                    <SelectItem key={key} value={key} className="select-item">
+                      {aspectRatioOptions[key as AspectRatioKey].label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             )}
           />
         )}
+
         {(type === 'remove' || type === 'recolor') && (
           <div className="prompt-field">
             <CustomField
               control={form.control}
               name="prompt"
-              formLabel={`${
+              formLabel={
                 type === 'remove' ? 'Object to remove' : 'Object to recolor'
-              }`}
+              }
               className="w-full"
               render={({ field }) => (
                 <Input
@@ -248,11 +264,12 @@ const TransformationForm = ({
                 />
               )}
             />
+
             {type === 'recolor' && (
               <CustomField
                 control={form.control}
                 name="color"
-                formLabel="Color to recolor"
+                formLabel="Replacement Color"
                 className="w-full"
                 render={({ field }) => (
                   <Input
@@ -272,6 +289,7 @@ const TransformationForm = ({
             )}
           </div>
         )}
+
         <div className="media-uploader-field">
           <CustomField
             control={form.control}
@@ -287,15 +305,17 @@ const TransformationForm = ({
               />
             )}
           />
+
+          <TransformedImage
+            image={image}
+            type={type}
+            title={form.getValues().title}
+            isTransforming={isTransforming}
+            setIsTransforming={setIsTransforming}
+            transformationConfig={transformationConfig}
+          />
         </div>
-        <TransformedImage
-          image={image}
-          type={type}
-          title={form.getValues().title}
-          isTransforming={isTransforming}
-          setIsTransforming={setIsTransforming}
-          transformationConfig={transformationConfig}
-        />
+
         <div className="flex flex-col gap-4">
           <Button
             type="button"
