@@ -13,7 +13,7 @@ const ImageDetails = async ({ params}: SearchParamProps) => {
   const pr = await params
   const { userId } = await auth();
 
-  const image = await getImageById(pr.transformationId);
+  const image = await getImageById(pr.id);
 
   return (
     <>
