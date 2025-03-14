@@ -14,7 +14,7 @@ const Page = async ({ params }: SearchParamProps) => {
   if (!userId) redirect('/sign-in');
 
   const user = await getUserById(userId);
-  const image = await getImageById(pr.transformationId);
+  const image = await getImageById(pr.id);
 
   const transformation =
     transformationTypes[image.transformationType as TransformationTypeKey];
