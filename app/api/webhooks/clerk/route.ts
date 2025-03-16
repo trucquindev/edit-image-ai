@@ -1,4 +1,5 @@
-import { clerkClient } from '@clerk/nextjs/server';
+/* eslint-disable camelcase */
+import { clerkClient } from '@clerk/clerk-sdk-node';
 import { WebhookEvent } from '@clerk/nextjs/server';
 import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
@@ -15,6 +16,7 @@ export async function POST(req: Request) {
       'Please add WEBHOOK_SECRET from Clerk Dashboard to .env or .env.local'
     );
   }
+
   // Get the headers
   const headerPayload = await headers();
   const svix_id = headerPayload.get('svix-id');
@@ -112,8 +114,4 @@ export async function POST(req: Request) {
   console.log('Webhook body:', body);
 
   return new Response('', { status: 200 });
-}
-
-export function GET() {
-  return new Response('This is the Clerk Webhook endpoint.', { status: 200 });
 }
