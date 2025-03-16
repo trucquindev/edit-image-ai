@@ -113,7 +113,7 @@ declare type RemoveUrlQueryParams = {
   keysToRemove: string[];
 };
 
-declare type SearchParamProps = {
+declare type SearchParamPropss = {
   params: { id: string; type: TransformationTypeKey };
   searchParams: { [key: string]: string | string[] | undefined };
 };
