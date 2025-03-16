@@ -5,7 +5,7 @@ import { getUserById } from '@/lib/actions/user.action';
 import { auth } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 interface PraramsProps {
-  params: { id: string; type: TransformationTypeKey };
+  params: Promise<{ id: string; type: TransformationTypeKey }>;
 }
 const AddTransformationTypePage = async ({ params }: PraramsProps) => {
   const { type } = await params;
