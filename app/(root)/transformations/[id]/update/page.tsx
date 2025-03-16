@@ -5,7 +5,10 @@ import TransformationForm from '@/components/shared/TransformationForm';
 import { transformationTypes } from '@/constants';
 import { getUserById } from '@/lib/actions/user.action';
 import { getImageById } from '@/lib/actions/image.actions';
-const Page = async ({ params }: { params: { id: string } }) => {
+interface PropsPrams {
+  params: Promise<{ id: string; type: TransformationTypeKey }>;
+}
+const Page = async ({ params }: PropsPrams) => {
   const { userId } = await auth();
   const reslovePrams = await params;
   if (!userId) redirect('/sign-in');

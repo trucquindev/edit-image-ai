@@ -8,8 +8,10 @@ import { Button } from '@/components/ui/button';
 import { getImageById } from '@/lib/actions/image.actions';
 import { getImageSize } from '@/lib/utils';
 import { DeleteConfirmation } from '@/components/shared/DeleteConfirmation';
-
-const ImageDetails = async ({ params }: { params: { id: string } }) => {
+interface PropsPrams {
+  params: Promise<{ id: string; type: TransformationTypeKey }>;
+}
+const ImageDetails = async ({ params }: PropsPrams) => {
   const pr = await params;
   const { userId } = await auth();
 
