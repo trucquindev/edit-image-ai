@@ -9,11 +9,7 @@ import { getImageById } from '@/lib/actions/image.actions';
 import { getImageSize } from '@/lib/utils';
 import { DeleteConfirmation } from '@/components/shared/DeleteConfirmation';
 
-const ImageDetails = async ({
-  params,
-}: {
-  params: Promise<SearchParamProps['params']>;
-}) => {
+const ImageDetails = async ({ params }: { params: { id: string } }) => {
   const pr = await params;
   const { userId } = await auth();
 

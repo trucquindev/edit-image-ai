@@ -1,24 +1,17 @@
 import { auth } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
-
 import Header from '@/components/shared/Header';
 import TransformationForm from '@/components/shared/TransformationForm';
 import { transformationTypes } from '@/constants';
 import { getUserById } from '@/lib/actions/user.action';
 import { getImageById } from '@/lib/actions/image.actions';
-
-const Page = async ({
-  params,
-}: {
-  params: Promise<SearchParamProps['params']>;
-}) => {
-  const resolvedParams = await params;
+const Page = async ({ params }: { params: { id: string } }) => {
   const { userId } = await auth();
-
+  const reslovePrams = await params;
   if (!userId) redirect('/sign-in');
 
   const user = await getUserById(userId);
-  const image = await getImageById(resolvedParams.id);
+  const image = await getImageById(reslovePrams.id);
 
   const transformation =
     transformationTypes[image.transformationType as TransformationTypeKey];
