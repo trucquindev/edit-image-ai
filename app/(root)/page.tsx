@@ -3,8 +3,10 @@ import { navLinks } from '@/constants';
 import { getAllImages } from '@/lib/actions/image.actions';
 import Image from 'next/image';
 import Link from 'next/link';
-
-const Home = async ({ searchParams }: SearchParamProps) => {
+interface PraramsProps {
+  searchParams: { [key: string]: string | string[] | undefined };
+}
+const Home = async ({ searchParams }: PraramsProps) => {
   const sPrarams = await searchParams;
   const page = Number(sPrarams?.page) || 1;
   const searchQuery = (sPrarams?.query as string) || '';
