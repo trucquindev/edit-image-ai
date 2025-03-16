@@ -4,7 +4,7 @@ import { getAllImages } from '@/lib/actions/image.actions';
 import Image from 'next/image';
 import Link from 'next/link';
 interface PraramsProps {
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 const Home = async ({ searchParams }: PraramsProps) => {
   const sPrarams = await searchParams;
