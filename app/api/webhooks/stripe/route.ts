@@ -1,19 +1,36 @@
 import { createTransaction } from '@/lib/actions/transaction.action';
 import { NextResponse } from 'next/server';
-import stripe from 'stripe';
+import Stripe from 'stripe';
+
+// Khởi tạo Stripe với API Key từ biến môi trường
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
+  apiVersion: '2025-02-24.acacia',
+});
 
 export async function POST(request: Request) {
-  const body = await request.text();
+  const rawBody = await request.arrayBuffer(); // Chuyển body thành Buffer
+  const body = Buffer.from(rawBody);
 
   const sig = request.headers.get('stripe-signature') as string;
   const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+
+  if (!endpointSecret) {
+    return NextResponse.json(
+      { message: 'Missing STRIPE_WEBHOOK_SECRET' },
+      { status: 500 }
+    );
+  }
 
   let event;
 
   try {
     event = stripe.webhooks.constructEvent(body, sig, endpointSecret);
-  } catch (err) {
-    return NextResponse.json({ message: 'Webhook error', error: err });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (err: any) {
+    return NextResponse.json(
+      { message: 'Webhook error', error: err.message },
+      { status: 400 }
+    );
   }
 
   // Get the ID and type
